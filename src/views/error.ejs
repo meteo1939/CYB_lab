@@ -1,0 +1,15 @@
+<% var bodyClass = (user && sessionStage === 'full') ? '' : 'gate-page'; %>
+<%- include('partials/top') %>
+<% if (!(user && sessionStage === 'full')) { %><main class="gate"><% } %>
+<section class="card narrow">
+  <p class="code"><%= status %></p>
+  <h1><%= title %></h1>
+  <p><%= message %></p>
+  <% if (user && sessionStage === 'full') { %>
+    <a class="button" href="/">Wróć na pulpit</a>
+  <% } else { %>
+    <a class="button" href="/login">Wróć do logowania</a>
+  <% } %>
+</section>
+<% if (!(user && sessionStage === 'full')) { %></main><% } %>
+<%- include('partials/bottom') %>

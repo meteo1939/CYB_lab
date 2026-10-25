@@ -1,0 +1,36 @@
+<% var bodyClass = 'auth'; %>
+<%- include('partials/top') %>
+<div class="auth-split">
+  <section class="auth-story">
+    <p class="eyebrow light">Moduł 1 · wariant 8</p>
+    <h1>KLUCZ</h1>
+    <p class="lead">Portal zasobów wewnętrznych. Najpierw mówisz, kim jesteś. Potem to potwierdzasz. Na końcu rola decyduje, co wolno otworzyć.</p>
+    <ol class="steps">
+      <li><span>Identyfikacja</span> Login wskazuje konto. Sam login niczego nie otwiera.</li>
+      <li><span>Uwierzytelnianie</span> Hasło, a po włączeniu drugiego składnika także kod TOTP.</li>
+      <li><span>Autoryzacja</span> Administrator, pracownik albo gość — każde żądanie sprawdza serwer.</li>
+    </ol>
+  </section>
+  <section class="auth-panel">
+    <form class="card" method="post" action="/login">
+      <h2>Logowanie</h2>
+      <p class="muted">Hasło jest maskowane. Przy błędzie portal nie zdradza, czy login istnieje.</p>
+      <% if (notices && notices.length) { %>
+        <ul class="notices">
+          <% notices.forEach(function (item) { %><li><%= item %></li><% }) %>
+        </ul>
+      <% } %>
+      <% if (error) { %><p class="banner bad" role="alert"><%= error %></p><% } %>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label for="login">Login</label>
+      <input id="login" name="login" autocomplete="username" required maxlength="32" value="<%= login %>">
+      <label for="password">Hasło</label>
+      <div class="password-row">
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="text-btn" type="button" data-reveal="password">Pokaż</button>
+      </div>
+      <button class="button" type="submit">Wejdź</button>
+    </form>
+  </section>
+</div>
+<%- include('partials/bottom') %>

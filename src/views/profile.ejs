@@ -1,0 +1,57 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Profil</p>
+    <h1><%= fullName(user) %></h1>
+    <p class="muted">Login <code><%= user.login %></code> · <%= roleLabel(user.role) %></p>
+  </div>
+</section>
+<section class="card">
+  <h2>Zmiana hasła</h2>
+  <% if (errors.length) { %><ul class="errors"><% errors.forEach(function (item) { %><li><%= item %></li><% }) %></ul><% } %>
+  <form method="post" action="/profil/haslo">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label for="current_password">Dotychczasowe hasło</label>
+    <div class="password-row">
+      <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+      <button class="text-btn" type="button" data-reveal="current_password">Pokaż</button>
+    </div>
+    <%- include('partials/new-password') %>
+    <button class="button" type="submit">Zmień hasło</button>
+  </form>
+</section>
+<section class="card" id="totp">
+  <h2>Drugi składnik TOTP</h2>
+  <% if (totpError) { %><p class="banner bad" role="alert"><%= totpError %></p><% } %>
+  <% if (user.totp_enabled) { %>
+    <p>Kody z aplikacji są wymagane przy logowaniu. Wyłączenie wymaga hasła i aktualnego kodu.</p>
+    <form method="post" action="/profil/totp/wylacz">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label for="disable_password">Hasło</label>
+      <input id="disable_password" name="current_password" type="password" autocomplete="current-password" required>
+      <label for="disable_code">Kod TOTP</label>
+      <input id="disable_code" name="code" inputmode="numeric" autocomplete="one-time-code" required>
+      <button class="button ghost" type="submit">Wyłącz drugi składnik</button>
+    </form>
+  <% } else if (qr) { %>
+    <p>Zeskanuj kod w aplikacji uwierzytelniającej albo wpisz klucz ręcznie. Drugi składnik zacznie działać dopiero po poprawnym kodzie.</p>
+    <img class="qr" src="<%= qr %>" alt="Kod QR konfiguracji TOTP">
+    <p class="secret"><%= secret %></p>
+    <form method="post" action="/profil/totp/potwierdz">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <label for="confirm_code">Kod z aplikacji</label>
+      <input id="confirm_code" name="code" inputmode="numeric" autocomplete="one-time-code" required>
+      <div class="buttons">
+        <button class="button" type="submit">Włącz</button>
+        <button class="button ghost" type="submit" formaction="/profil/totp/anuluj" formnovalidate>Anuluj</button>
+      </div>
+    </form>
+  <% } else { %>
+    <p>Opcjonalny drugi składnik. Hasło zostaje pierwszym, kod czasowy drugim.</p>
+    <form method="post" action="/profil/totp/start">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="button" type="submit">Skonfiguruj TOTP</button>
+    </form>
+  <% } %>
+</section>
+<%- include('partials/bottom') %>

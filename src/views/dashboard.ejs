@@ -1,0 +1,42 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Pulpit</p>
+    <h1>Dzień dobry, <%= user.first_name %></h1>
+  </div>
+  <% if (can('announcements.create')) { %>
+    <a class="button" href="/ogloszenia/nowe">Nowe ogłoszenie</a>
+  <% } %>
+</section>
+<section class="stats">
+  <article>
+    <p>Rola</p>
+    <strong><%= roleLabel(user.role) %></strong>
+  </article>
+  <article>
+    <p>Bezczynność sesji</p>
+    <strong><%= policy.sessionIdleMinutes %> min</strong>
+  </article>
+  <article>
+    <p>Entropia haseł</p>
+    <strong><%= policy.entropyRequired ? 'próg ' + policy.minEntropyBits + ' bitów' : 'wyłączona' %></strong>
+  </article>
+</section>
+<section class="stack">
+  <h2>Ogłoszenia</h2>
+  <% if (!announcements.length) { %><p class="muted">Brak ogłoszeń widocznych dla tej roli.</p><% } %>
+  <% announcements.forEach(function (item) { %>
+    <article class="card post">
+      <header>
+        <h3><%= item.title %></h3>
+        <span class="pill <%= item.visibility %>"><%= item.visibility === 'internal' ? 'Wewnętrzne' : 'Ogólnodostępne' %></span>
+      </header>
+      <p class="meta"><%= item.author_name %> · <%= formatDate(item.created_at) %></p>
+      <p class="prose"><%= item.body %></p>
+      <% if (canEditOwn(user, item, 'announcements.update_own', 'announcements.update_any')) { %>
+        <a href="/ogloszenia/<%= item.id %>/edytuj">Edytuj</a>
+      <% } %>
+    </article>
+  <% }) %>
+</section>
+<%- include('partials/bottom') %>

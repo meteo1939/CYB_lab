@@ -1,0 +1,19 @@
+<% var bodyClass = 'gate-page'; %>
+<%- include('partials/top') %>
+<main class="gate">
+  <form class="card" method="post" action="/logowanie/kod">
+    <p class="eyebrow">Drugi składnik</p>
+    <h1>Kod z aplikacji</h1>
+    <p class="muted">Hasło zostało przyjęte. Wpisz 6-cyfrowy kod TOTP. Samo hasło już nie wystarcza.</p>
+    <% if (error) { %><p class="banner bad" role="alert"><%= error %></p><% } %>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <label for="code">Kod</label>
+    <input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,8}" required>
+    <button class="button" type="submit">Potwierdź</button>
+  </form>
+  <form method="post" action="/wyloguj">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <button class="button ghost" type="submit">Anuluj logowanie</button>
+  </form>
+</main>
+<%- include('partials/bottom') %>

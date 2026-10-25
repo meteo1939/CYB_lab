@@ -1,0 +1,42 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">RBAC</p>
+    <h1>Macierz uprawnień</h1>
+    <p class="muted">Uprawnienia są przypisane rolom, a rola użytkownikowi. Twoja rola: <strong><%= roleLabel(user.role) %></strong>.</p>
+  </div>
+</section>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Obszar</th>
+        <th>Uprawnienie</th>
+        <% ROLES.forEach(function (role) { %>
+          <th class="<%= user.role === role.id ? 'mine' : '' %>"><%= role.label %></th>
+        <% }) %>
+      </tr>
+    </thead>
+    <tbody>
+      <% PERMISSIONS.forEach(function (item) { %>
+        <tr>
+          <td><%= item.group %></td>
+          <td><%= item.label %></td>
+          <% ROLES.forEach(function (role) { %>
+            <td class="center <%= user.role === role.id ? 'mine' : '' %>"><%= granted(role.id, item.id) ? 'tak' : '—' %></td>
+          <% }) %>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<section class="card note">
+  <h2>Przycisk to nie autoryzacja</h2>
+  <p>Menu pokazuje tylko te działy, do których rola ma wejście. To ułatwienie, nie zabezpieczenie. Adres sprawdzany jest przy każdym żądaniu.</p>
+  <% if (!can('documents.read')) { %>
+    <p><a href="/dokumenty">Otwórz /dokumenty</a> — serwer ma odpowiedzieć kodem 403.</p>
+  <% } else { %>
+    <p>Masz uprawnienie do dokumentów. Odpowiedź 403 zobaczy gość pod adresem <code>/dokumenty</code>.</p>
+  <% } %>
+</section>
+<%- include('partials/bottom') %>

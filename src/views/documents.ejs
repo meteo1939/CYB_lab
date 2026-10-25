@@ -1,0 +1,22 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Dokumenty wewnętrzne</p>
+    <h1>Materiały laboratorium</h1>
+  </div>
+  <% if (can('documents.create')) { %><a class="button" href="/dokumenty/nowe">Nowy dokument</a><% } %>
+</section>
+<p class="muted">Ten adres jest niedostępny dla gościa. Brak odnośnika w menu nie jest kontrolą dostępu — kontrolą jest odpowiedź serwera.</p>
+<section class="stack">
+  <% documents.forEach(function (item) { %>
+    <article class="card post">
+      <h3><%= item.title %></h3>
+      <p class="meta"><%= item.author_name %> · <%= formatDate(item.created_at) %></p>
+      <p class="prose"><%= item.body %></p>
+      <% if (canEditOwn(user, item, 'documents.update_own', 'documents.update_any')) { %>
+        <a href="/dokumenty/<%= item.id %>/edytuj">Edytuj</a>
+      <% } %>
+    </article>
+  <% }) %>
+</section>
+<%- include('partials/bottom') %>
