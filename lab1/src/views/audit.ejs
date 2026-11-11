@@ -1,0 +1,35 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Dziennik</p>
+    <h1>Zdarzenia uwierzytelniania</h1>
+    <p class="muted">Podgląd pod moduł o audycie. Hasła i kody TOTP nie są zapisywane.</p>
+  </div>
+</section>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Czas</th>
+        <th>Zdarzenie</th>
+        <th>Kto</th>
+        <th>Cel</th>
+        <th>Wynik</th>
+        <th>Szczegół</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% events.forEach(function (event) { %>
+        <tr>
+          <td><%= formatDate(event.created_at) %></td>
+          <td><%= actionLabel(event.action) %></td>
+          <td><%= event.actor_login || '—' %></td>
+          <td><%= event.target || '—' %></td>
+          <td><%= event.success ? 'udane' : 'odmowa' %></td>
+          <td><%= event.detail || '—' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('partials/bottom') %>

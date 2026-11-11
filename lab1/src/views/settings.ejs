@@ -1,0 +1,32 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Wariant 8</p>
+    <h1>Polityka haseł i sesja</h1>
+  </div>
+</section>
+<% if (errors.length) { %><ul class="errors"><% errors.forEach(function (item) { %><li><%= item %></li><% }) %></ul><% } %>
+<form class="card settings" method="post" action="/admin/ustawienia">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label class="check">
+    <input type="checkbox" name="entropy_required" value="1" <%= policy.entropyRequired ? 'checked' : '' %>>
+    <span>Wymagaj entropii co najmniej <%= policy.minEntropyBits %> bitów. Przy wyborze hasła portal pokazuje podpowiedź H = L × log₂(R).</span>
+  </label>
+  <label for="password_max_age_days">Ważność hasła (dni)</label>
+  <input id="password_max_age_days" name="password_max_age_days" type="number" min="0" max="3650" step="1" required value="<%= policy.passwordMaxAgeDays %>">
+  <p class="hint static">Zero wyłącza termin. Po jego upływie logowanie prowadzi do zmiany hasła.</p>
+  <label for="session_idle_minutes">Czas bezczynności sesji (minuty)</label>
+  <input id="session_idle_minutes" name="session_idle_minutes" type="number" min="1" max="480" step="1" required value="<%= policy.sessionIdleMinutes %>">
+  <p class="hint static">Brak żądań przez ten czas kończy sesję. Osobno sesja żyje najwyżej 12 godzin.</p>
+  <button class="button" type="submit">Zapisz ustawienia</button>
+</form>
+<section class="card note">
+  <h2>Czego ten ekran nie zmienia</h2>
+  <ul>
+    <li>Minimalna długość hasła: <%= policy.minPasswordLength %> znaków.</li>
+    <li>Hasło jednorazowe: 8 cyfr, ważność 1 godzina.</li>
+    <li>Historia haseł: <%= policy.passwordHistory %> ostatnich skrótów.</li>
+    <li>Algorytm: Argon2id, m=19456, t=2, p=1.</li>
+  </ul>
+</section>
+<%- include('partials/bottom') %>

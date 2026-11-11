@@ -1,0 +1,65 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow"><%= account.login %></p>
+    <h1><%= fullName(account) %></h1>
+    <p><span class="pill <%= state.key %>"><%= state.label %></span> <span class="pill"><%= roleLabel(account.role) %></span></p>
+  </div>
+</section>
+<% if (account.is_permanent) { %>
+  <p class="banner warn">To jest stałe konto administratora. Nie można go usunąć, zablokować ani odebrać mu roli.</p>
+<% } %>
+<% if (errors.length) { %><ul class="errors"><% errors.forEach(function (item) { %><li><%= item %></li><% }) %></ul><% } %>
+<form class="card form-grid" method="post" action="/admin/uzytkownicy/<%= account.id %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label class="span" for="login">Login</label>
+  <input class="span" id="login" value="<%= account.login %>" disabled>
+  <label for="first_name">Imię</label>
+  <label for="last_name">Nazwisko</label>
+  <input id="first_name" name="first_name" required maxlength="60" value="<%= account.first_name %>">
+  <input id="last_name" name="last_name" required maxlength="60" value="<%= account.last_name %>">
+  <label class="span" for="role">Rola</label>
+  <select class="span" id="role" name="role" <%= account.is_permanent ? 'disabled' : '' %>>
+    <% ROLES.forEach(function (role) { %>
+      <option value="<%= role.id %>" <%= account.role === role.id ? 'selected' : '' %>><%= role.label %></option>
+    <% }) %>
+  </select>
+  <% if (account.is_permanent) { %><input type="hidden" name="role" value="administrator"><% } %>
+  <% if (can('users.update')) { %>
+    <div class="span"><button class="button" type="submit">Zapisz dane</button></div>
+  <% } %>
+</form>
+<section class="card hash-card">
+  <h2>Zapis hasła w bazie</h2>
+  <p class="muted">W tabeli <code>users</code> nie ma hasła jawnego. Poniższy ciąg PHC zawiera algorytm, parametry kosztu, sól i skrót Argon2id.</p>
+  <% if (hashInfo) { %>
+    <dl class="facts">
+      <div><dt>Algorytm</dt><dd><%= hashInfo.algorithm %></dd></div>
+      <div><dt>Wersja</dt><dd><%= hashInfo.version %></dd></div>
+      <div><dt>Parametry</dt><dd><%= hashInfo.params %></dd></div>
+      <div><dt>Zmiana hasła</dt><dd><%= formatDate(account.password_changed_at) %></dd></div>
+      <div><dt>Hasło jednorazowe</dt><dd><%= account.otp_expires_at ? formatDate(account.otp_expires_at) : 'nie' %></dd></div>
+    </dl>
+  <% } %>
+  <code class="hash"><%= account.password_hash %></code>
+</section>
+<% if (!account.is_permanent && account.id !== user.id) { %>
+  <section class="split-actions">
+    <% if (can('users.block')) { %>
+      <form method="post" action="/admin/uzytkownicy/<%= account.id %>/blokada">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="button ghost" type="submit"><%= account.is_blocked ? 'Odblokuj konto' : 'Zablokuj konto' %></button>
+      </form>
+    <% } %>
+    <% if (can('users.reset_password')) { %>
+      <form method="post" action="/admin/uzytkownicy/<%= account.id %>/reset">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="button ghost" type="submit">Nadaj hasło jednorazowe</button>
+      </form>
+    <% } %>
+    <% if (can('users.delete')) { %>
+      <a class="danger" href="/admin/uzytkownicy/<%= account.id %>/usun">Usuń konto</a>
+    <% } %>
+  </section>
+<% } %>
+<%- include('partials/bottom') %>

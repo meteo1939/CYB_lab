@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title><%= title %> · KLUCZ</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>" data-min-length="<%= policy.minPasswordLength %>" data-entropy-required="<%= policy.entropyRequired ? '1' : '0' %>" data-min-bits="<%= policy.minEntropyBits %>">
+<% if (user && sessionStage === 'full') { %>
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <span class="seal" aria-hidden="true"></span>
+      <div>
+        <strong>KLUCZ</strong>
+        <small>portal zasobów</small>
+      </div>
+    </div>
+    <nav aria-label="Nawigacja">
+      <a class="<%= path === '/' ? 'active' : '' %>" href="/">Pulpit</a>
+      <a class="<%= path === '/uprawnienia' ? 'active' : '' %>" href="/uprawnienia">Uprawnienia</a>
+      <% if (can('documents.read')) { %>
+        <a class="<%= path.startsWith('/dokumenty') ? 'active' : '' %>" href="/dokumenty">Dokumenty</a>
+      <% } %>
+      <% if (can('users.read')) { %>
+        <a class="<%= path.startsWith('/admin/uzytkownicy') || path.startsWith('/admin/haslo') ? 'active' : '' %>" href="/admin/uzytkownicy">Użytkownicy</a>
+      <% } %>
+      <% if (can('settings.manage')) { %>
+        <a class="<%= path === '/admin/ustawienia' ? 'active' : '' %>" href="/admin/ustawienia">Ustawienia</a>
+      <% } %>
+      <% if (can('audit.read')) { %>
+        <a class="<%= path === '/admin/dziennik' ? 'active' : '' %>" href="/admin/dziennik">Dziennik</a>
+      <% } %>
+      <a class="<%= path === '/profil' ? 'active' : '' %>" href="/profil">Profil</a>
+    </nav>
+    <p class="side-note">Wariant 8 · Argon2id</p>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Zalogowano</p>
+        <strong><%= fullName(user) %></strong>
+        <span class="pill"><%= roleLabel(user.role) %></span>
+      </div>
+      <form method="post" action="/wyloguj">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="button ghost" type="submit">Wyloguj</button>
+      </form>
+    </header>
+    <main class="content">
+      <% if (flash && flash.message) { %>
+        <p class="banner <%= flash.tone || 'ok' %>" role="status"><%= flash.message %></p>
+      <% } %>
+<% } %>

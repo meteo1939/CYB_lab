@@ -1,0 +1,29 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Nowe konto</p>
+    <h1>Hasło ustali portal</h1>
+    <p class="muted">Po zapisaniu zobaczysz 8-cyfrowy kod ważny przez godzinę. Przekaż go użytkownikowi poza tym ekranem — po odświeżeniu zniknie, w bazie zostanie tylko skrót.</p>
+  </div>
+</section>
+<form class="card form-grid" method="post" action="/admin/uzytkownicy">
+  <% if (errors.length) { %><ul class="errors span"><% errors.forEach(function (item) { %><li><%= item %></li><% }) %></ul><% } %>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label class="span" for="login">Login</label>
+  <input class="span" id="login" name="login" required maxlength="32" value="<%= form.login %>" autocomplete="off">
+  <label for="first_name">Imię</label>
+  <label for="last_name">Nazwisko</label>
+  <input id="first_name" name="first_name" required maxlength="60" value="<%= form.first_name %>">
+  <input id="last_name" name="last_name" required maxlength="60" value="<%= form.last_name %>">
+  <fieldset class="span">
+    <legend>Rola</legend>
+    <% ROLES.forEach(function (role) { %>
+      <label class="choice"><input type="radio" name="role" value="<%= role.id %>" <%= form.role === role.id ? 'checked' : '' %>> <%= role.label %></label>
+    <% }) %>
+  </fieldset>
+  <div class="span buttons">
+    <button class="button" type="submit">Utwórz i pokaż hasło jednorazowe</button>
+    <a href="/admin/uzytkownicy">Anuluj</a>
+  </div>
+</form>
+<%- include('partials/bottom') %>

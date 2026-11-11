@@ -1,0 +1,16 @@
+<%- include('partials/top') %>
+<section class="card narrow">
+  <p class="eyebrow">Hasło jednorazowe</p>
+  <% if (otp) { %>
+    <h1><%= otp.mode === 'reset' ? 'Nowe hasło jednorazowe' : 'Konto zostało utworzone' %></h1>
+    <p><strong><%= otp.name %></strong> · login <code><%= otp.login %></code></p>
+    <p class="otp-code"><%= otp.otp %></p>
+    <p>Osiem cyfr, ważne do <strong><%= formatDate(otp.expiresAt) %></strong>, czyli godzinę od nadania. Przy pierwszym logowaniu portal wymusi własne hasło.</p>
+    <p class="banner warn">To jedyny moment, w którym kod jest widoczny. W bazie zapisany jest wyłącznie skrót.</p>
+  <% } else { %>
+    <h1>Kod został już pokazany</h1>
+    <p>Odświeżenie tej strony nie przywraca hasła. Jeśli użytkownik go nie dostał, nadaj nowe hasło jednorazowe z karty konta.</p>
+  <% } %>
+  <a class="button" href="/admin/uzytkownicy">Wróć do listy</a>
+</section>
+<%- include('partials/bottom') %>

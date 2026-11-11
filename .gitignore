@@ -1,0 +1,7 @@
+modul1/
+**/node_modules/
+**/data/
+**/*.log
+**/bot-report.md
+**/sprawozdanie/
+.DS_Store

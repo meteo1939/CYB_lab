@@ -1,0 +1,48 @@
+<% var bodyClass = 'auth'; %>
+<%- include('partials/top') %>
+<div class="auth-split">
+  <section class="auth-story">
+    <p class="eyebrow light">Moduł 2 · wariant 8</p>
+    <h1>KLUCZ</h1>
+    <p class="lead">Portal zasobów wewnętrznych. Logowanie chroni CAPTCHA, honeypot, limit prób i Canarytokeny.</p>
+    <ol class="steps">
+      <li><span>Identyfikacja</span> Login wskazuje konto. Sam login niczego nie otwiera.</li>
+      <li><span>Uwierzytelnianie</span> Hasło, reCAPTCHA i opcjonalnie TOTP.</li>
+      <li><span>Autoryzacja</span> Administrator, pracownik albo gość — każde żądanie sprawdza serwer.</li>
+    </ol>
+  </section>
+  <section class="auth-panel">
+    <form class="card" method="post" action="/login" autocomplete="off">
+      <h2>Logowanie</h2>
+      <p class="muted">Hasło jest maskowane. Przy błędzie portal nie zdradza, czy login istnieje — poza komunikatem o tymczasowej blokadzie konta.</p>
+      <% if (notices && notices.length) { %>
+        <ul class="notices">
+          <% notices.forEach(function (item) { %><li><%= item %></li><% }) %>
+        </ul>
+      <% } %>
+      <% if (error) { %><p class="banner bad" role="alert"><%= error %></p><% } %>
+      <% if (lockRemaining) { %>
+        <p class="banner warn" role="status">Pozostały czas blokady: <strong data-lock-remaining><%= lockRemaining %></strong></p>
+      <% } %>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="login_challenge" value="<%= challengeId %>">
+      <div class="hp" aria-hidden="true">
+        <label for="company_fax">Firma (nie wypełniaj)</label>
+        <input id="company_fax" name="company_fax" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <label for="login">Login</label>
+      <input id="login" name="login" autocomplete="username" required maxlength="32" value="<%= login %>">
+      <label for="password">Hasło</label>
+      <div class="password-row">
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="text-btn" type="button" data-reveal="password">Pokaż</button>
+      </div>
+      <div class="captcha-box">
+        <div class="g-recaptcha" data-sitekey="<%= captchaSiteKey %>"></div>
+      </div>
+      <button class="button" type="submit">Wejdź</button>
+    </form>
+  </section>
+</div>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<%- include('partials/bottom') %>
