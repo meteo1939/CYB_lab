@@ -1,0 +1,43 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Moduł 2</p>
+    <h1>Canarytokens</h1>
+    <p class="muted">Alerty z konta-pułapki i z przynęty AWS. Każde użycie trafia też do dziennika.</p>
+  </div>
+</section>
+<section class="card note">
+  <h2>Zainstalowane tokeny</h2>
+  <ul>
+    <li><strong>Konto-pułapka</strong> <code>svc_backup</code> — każda próba logowania na ten login wyzwala alert (nawet przy złym haśle).</li>
+    <li><strong>Klucze AWS</strong> — plik przynęty: <a href="<%= awsPath %>"><%= awsPath %></a>. Samo pobranie generuje alert.</li>
+  </ul>
+</section>
+<section class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Czas</th>
+        <th>Typ</th>
+        <th>Szczegóły</th>
+        <th>IP</th>
+        <th>Aktor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (!alerts.length) { %>
+        <tr><td colspan="5">Brak alertów — tokeny jeszcze nie zostały uruchomione.</td></tr>
+      <% } %>
+      <% alerts.forEach(function (row) { %>
+        <tr>
+          <td><%= formatDate(row.created_at) %></td>
+          <td><code><%= row.type %></code></td>
+          <td><%= row.detail || '—' %></td>
+          <td><%= row.ip || '—' %></td>
+          <td><%= row.actor_login || '—' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+<%- include('partials/bottom') %>

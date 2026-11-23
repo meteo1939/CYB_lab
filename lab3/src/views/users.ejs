@@ -1,0 +1,37 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Administracja</p>
+    <h1>Użytkownicy</h1>
+  </div>
+  <% if (can('users.create')) { %><a class="button" href="/admin/uzytkownicy/nowy">Nowe konto</a><% } %>
+</section>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Login</th>
+        <th>Osoba</th>
+        <th>Rola</th>
+        <th>Stan</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(function (account) { %>
+        <tr>
+          <td><code><%= account.login %></code><% if (account.is_permanent) { %> <span class="pill">stałe</span><% } %></td>
+          <td><%= fullName(account) %></td>
+          <td><%= roleLabel(account.role) %></td>
+          <td>
+            <span class="pill <%= account.state.key %>"><%= account.state.label %></span>
+            <% if (account.state.until) { %><small>do <%= formatDate(account.state.until) %></small><% } %>
+            <% if (account.totp_enabled) { %><small>TOTP</small><% } %>
+          </td>
+          <td class="actions"><a href="/admin/uzytkownicy/<%= account.id %>">Edytuj</a></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('partials/bottom') %>

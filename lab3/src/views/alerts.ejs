@@ -1,0 +1,19 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Wariant 8 · kanał e-mail</p>
+    <h1>Skrzynka alertów</h1>
+    <p class="muted">Alerty są zapisywane jako pliki <code>.eml</code> (symulacja skrzynki). W produkcji wskazałoby się prawdziwy SMTP.</p>
+  </div>
+</section>
+<% if (!mailbox.length) { %>
+  <p class="card">Brak alertów. Wywołaj konto-pułapkę albo wygeneruj ≥5 nieudanych logowań na jedno konto w 5 minut.</p>
+<% } %>
+<% mailbox.forEach(function (mail) { %>
+  <section class="card">
+    <h2><%= mail.subject %></h2>
+    <p class="muted"><%= mail.date %> · <code><%= mail.name %></code></p>
+    <pre><%= mail.preview %></pre>
+  </section>
+<% }) %>
+<%- include('partials/bottom') %>

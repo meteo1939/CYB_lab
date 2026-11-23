@@ -1,0 +1,31 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Ogłoszenia</p>
+    <h1><%= heading %></h1>
+  </div>
+</section>
+<form class="card" method="post" action="<%= action %>">
+  <% if (errors.length) { %><ul class="errors"><% errors.forEach(function (item) { %><li><%= item %></li><% }) %></ul><% } %>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label for="title">Tytuł</label>
+  <input id="title" name="title" required maxlength="120" value="<%= form.title %>">
+  <label for="body">Treść</label>
+  <textarea id="body" name="body" required maxlength="5000" rows="8"><%= form.body %></textarea>
+  <fieldset>
+    <legend>Widoczność</legend>
+    <label class="choice"><input type="radio" name="visibility" value="public" <%= form.visibility !== 'internal' ? 'checked' : '' %>> Ogólnodostępne — widzi je także gość</label>
+    <label class="choice"><input type="radio" name="visibility" value="internal" <%= form.visibility === 'internal' ? 'checked' : '' %>> Wewnętrzne — pracownik i administrator</label>
+  </fieldset>
+  <div class="buttons">
+    <button class="button" type="submit">Zapisz</button>
+    <a href="/">Anuluj</a>
+  </div>
+</form>
+<% if (typeof remove !== 'undefined' && remove) { %>
+  <form method="post" action="<%= action %>/usun">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <button class="button danger" type="submit">Usuń ogłoszenie</button>
+  </form>
+<% } %>
+<%- include('partials/bottom') %>

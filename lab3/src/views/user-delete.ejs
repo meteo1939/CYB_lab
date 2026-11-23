@@ -1,0 +1,12 @@
+<%- include('partials/top') %>
+<section class="card narrow">
+  <p class="eyebrow">Usuwanie</p>
+  <h1><%= fullName(account) %></h1>
+  <p>Konto <code><%= account.login %></code> zostanie usunięte razem z sesjami i historią haseł. Ogłoszenia i dokumenty zostaną, z zachowanym imieniem i nazwiskiem autora.</p>
+  <form method="post" action="/admin/uzytkownicy/<%= account.id %>/usun">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <button class="button danger" type="submit">Usuń konto</button>
+    <a href="/admin/uzytkownicy/<%= account.id %>">Anuluj</a>
+  </form>
+</section>
+<%- include('partials/bottom') %>

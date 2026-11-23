@@ -1,0 +1,9 @@
+node_modules/
+data/
+*.log
+sprawozdanie/img/_*.html
+sprawozdanie/img/s*.html
+sprawozdanie/img/export-preview.html
+sprawozdanie/img/bot.html
+sprawozdanie/img/*-sample.json
+sprawozdanie/img/*-export.json

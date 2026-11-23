@@ -1,0 +1,108 @@
+<%- include('partials/top') %>
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Moduł 3 · wariant 8</p>
+    <h1>Dziennik zdarzeń bezpieczeństwa</h1>
+    <p class="muted">Plik JSON + SHA3-256 w polu <code>hash</code>. Czas w UTC. Haseł i tokenów nie zapisujemy. Edycja i usuwanie wpisów są wyłączone.</p>
+  </div>
+</section>
+
+<form class="card settings" method="get" action="/admin/dziennik">
+  <div class="form-grid">
+    <div>
+      <label for="user">Użytkownik (login)</label>
+      <input id="user" name="user" value="<%= filter.actor || '' %>" maxlength="64">
+    </div>
+    <div>
+      <label for="action">Typ zdarzenia</label>
+      <select id="action" name="action">
+        <option value="">— wszystkie —</option>
+        <% actions.forEach(function (pair) { %>
+          <option value="<%= pair[0] %>" <%= filter.action === pair[0] ? 'selected' : '' %>><%= pair[1] %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div>
+      <label for="from">Od (UTC ISO)</label>
+      <input id="from" name="from" placeholder="2026-11-23T00:00:00.000Z" value="<%= filter.from || '' %>">
+    </div>
+    <div>
+      <label for="to">Do (UTC ISO)</label>
+      <input id="to" name="to" placeholder="2026-11-24T00:00:00.000Z" value="<%= filter.to || '' %>">
+    </div>
+  </div>
+  <div class="buttons">
+    <button class="button" type="submit">Filtruj</button>
+    <a class="button ghost" href="/admin/dziennik/eksport?user=<%= encodeURIComponent(filter.actor || '') %>&action=<%= encodeURIComponent(filter.action || '') %>&from=<%= encodeURIComponent(filter.from || '') %>&to=<%= encodeURIComponent(filter.to || '') %>">Eksport JSON</a>
+  </div>
+</form>
+
+<form class="card" method="post" action="/admin/dziennik/weryfikuj">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <input type="hidden" name="user" value="<%= filter.actor || '' %>">
+  <input type="hidden" name="action" value="<%= filter.action || '' %>">
+  <input type="hidden" name="from" value="<%= filter.from || '' %>">
+  <input type="hidden" name="to" value="<%= filter.to || '' %>">
+  <h2>Integralność (SHA3-256)</h2>
+  <p class="muted">Plik: <code><%= logPath %></code>. Weryfikacja przelicza skrót każdego wpisu i sprawdza ciągłość id.</p>
+  <button class="button" type="submit">Sprawdź dziennik</button>
+  <% if (verify) { %>
+    <% if (verify.ok) { %>
+      <p class="banner ok" role="status">Dziennik nienaruszony — <%= verify.total %> wpisów, algorytm <%= verify.algorithm %>.</p>
+    <% } else { %>
+      <p class="banner bad" role="alert">Wykryto ingerencję (<%= verify.issues.length %>).</p>
+      <ul class="errors">
+        <% verify.issues.forEach(function (issue) { %>
+          <li>Wpis #<%= issue.id %>: <%= issue.message %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+  <% } %>
+</form>
+
+<% if (mailbox && mailbox.length) { %>
+<section class="card note">
+  <h2>Ostatnie alerty e-mail</h2>
+  <p class="muted">Kanał wariantu 8: pliki <code>.eml</code> w skrzynce lokalnej. <a href="/admin/alerty">Pełna skrzynka</a></p>
+  <ul>
+    <% mailbox.slice(0, 5).forEach(function (mail) { %>
+      <li><strong><%= mail.subject %></strong> <span class="muted"><%= mail.date %></span></li>
+    <% }) %>
+  </ul>
+</section>
+<% } %>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>UTC</th>
+        <th>Zdarzenie</th>
+        <th>Kto</th>
+        <th>IP</th>
+        <th>Cel</th>
+        <th>Wynik</th>
+        <th>Opis</th>
+        <th>SHA3-256</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (!events.length) { %>
+        <tr><td colspan="8">Brak wpisów dla tego filtra.</td></tr>
+      <% } %>
+      <% events.forEach(function (event) { %>
+        <tr>
+          <td><code><%= event.created_at %></code></td>
+          <td><%= actionLabel(event.action) %></td>
+          <td><%= event.actor_login || '—' %></td>
+          <td><%= event.ip || '—' %></td>
+          <td><%= event.target || '—' %></td>
+          <td><%= event.success ? 'sukces' : 'błąd' %></td>
+          <td><%= event.description || event.detail || '—' %></td>
+          <td><code class="tiny"><%= (event.hash || '').slice(0, 16) %>…</code></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<%- include('partials/bottom') %>
