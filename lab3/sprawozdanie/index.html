@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Sprawozdanie — Moduł 3</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #1a1a1a; font: 11pt/1.45 "Times New Roman", Times, serif; }
+  h1, h2, h3 { font-family: "Times New Roman", Times, serif; font-weight: 700; line-height: 1.25; page-break-after: avoid; }
+  h1 { font-size: 18pt; text-align: center; margin: 0 0 0.5em; }
+  h2 { font-size: 13.5pt; margin: 1.25em 0 0.4em; }
+  h3 { font-size: 12pt; margin: 0.9em 0 0.3em; }
+  p { margin: 0.4em 0; text-align: justify; }
+  .title-page { min-height: 90vh; text-align: center; page-break-after: always; padding-top: 1.5cm; }
+  .uni { font-size: 14pt; margin: 0.2em 0; }
+  .wydzial { font-size: 12pt; margin: 0.2em 0 2em; }
+  .cyb { font-size: 28pt; letter-spacing: 0.08em; margin: 1.5em 0 0.2em; font-weight: 700; }
+  .lab { font-size: 22pt; margin: 0.2em 0 2.5em; }
+  .meta { margin: 0.35em 0; font-size: 12pt; }
+  .author { margin-top: 3.5em; font-size: 13pt; line-height: 1.6; }
+  code, pre { font-family: Consolas, "Courier New", monospace; }
+  code { font-size: 0.9em; }
+  pre { font-size: 8pt; line-height: 1.35; background: #f4f4f4; border: 1px solid #ccc; padding: 8px 10px; white-space: pre-wrap; page-break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0.55em 0 0.9em; font-size: 9.5pt; page-break-inside: avoid; }
+  th, td { border: 1px solid #444; padding: 4px 6px; vertical-align: top; }
+  th { background: #eee; text-align: left; }
+  figure { margin: 0.7em 0 1em; page-break-inside: avoid; }
+  figcaption { font-size: 9.5pt; margin-top: 0.25em; text-align: center; font-style: italic; }
+  img { width: 100%; border: 1px solid #888; }
+  ul, ol { margin: 0.35em 0 0.6em; padding-left: 1.35em; }
+  .pagebreak { page-break-before: always; }
+  a { color: #000; }
+</style>
+</head>
+<body>
+
+<section class="title-page">
+  <p class="uni">Uniwersytet Bielsko-Bialski</p>
+  <p class="wydzial">Wydział Budowy Maszyn i Informatyki</p>
+  <p class="cyb">CYB</p>
+  <p class="lab">Lab 3</p>
+  <p class="meta">Moduł 3 — Monitorowanie i rejestrowanie zdarzeń bezpieczeństwa</p>
+  <p class="meta">Przedmiot: Bezpieczeństwo aplikacji komputerowych</p>
+  <p class="meta">Wariant: 8</p>
+  <p class="meta">Data wykonania: 23.11.2026</p>
+  <div class="author">
+    <p>Mateusz Kozieł</p>
+    <p>Nr Albumu: 61312</p>
+  </div>
+  <p class="meta" style="margin-top:2.5em">Repozytorium: <a href="https://github.com/meteo1939/CYB_lab">https://github.com/meteo1939/CYB_lab</a> · katalog <code>lab3/</code></p>
+</section>
+
+<h2>1. Wstęp teoretyczny</h2>
+<p>Bez dziennika zdarzeń atak zostaje tylko wrażeniem. Logi pozwalają zauważyć incydent, odtworzyć jego przebieg i rozliczyć działania użytkowników. Brak logowania i alertowania jest osobną kategorią ryzyka (m.in. OWASP Top 10); wymagania wynikają też z RODO i NIS2.</p>
+<p>Dobry wpis odpowiada na pytania: kto, co, kiedy, skąd, z jakim skutkiem. Czas zapisuje się w UTC, żeby nie mieszać stref. W logach nie wolno trzymać haseł (także błędnych), tokenów sesji ani kluczy. Dane od użytkownika trzeba czyścić przed zapisem — inaczej log injection pozwala „wkleić” fałszywy kolejny wpis znakami nowej linii.</p>
+<p>Integralność dziennika oznacza, że cichej edycji albo usunięcia nie da się ukryć. W tym projekcie każdy wpis w pliku JSON ma pole <code>hash</code> = SHA3-256 z kanonicznej treści. Ponowne przeliczenie i porównanie zdradza zmianę. Alerty (reguły detekcji) zamieniają surowe zdarzenia w sygnał dla administratora — tu kanałem jest e-mail.</p>
+
+<h2>2. Wykonane ćwiczenia</h2>
+<h3>2.1. Wariant 8</h3>
+<table>
+  <tr><th>Format zapisu</th><td>plik JSON <code>data/security-log.json</code></td></tr>
+  <tr><th>Integralność</th><td>SHA3-256 każdego wpisu w polu <code>hash</code></td></tr>
+  <tr><th>Reguła detekcji</th><td>każda próba logowania na konto-pułapkę <code>svc_backup</code></td></tr>
+  <tr><th>Kanał alertu</th><td>e-mail (pliki <code>.eml</code> w <code>data/mailbox/</code>)</td></tr>
+  <tr><th>Reguła wspólna</th><td>≥ 5 nieudanych logowań na jedno konto w 5 minut</td></tr>
+</table>
+<p>Dodatkowo: webhook <code>POST /webhooks/canary</code> przekazuje alerty Canarytokens do aplikacji.</p>
+
+<h3>2.2. Rejestrowane zdarzenia</h3>
+<p>Logowanie i wylogowanie, nieudane logowania, blokady kont i IP, zmiany haseł (także nieudane), tworzenie / edycja roli / blokowanie / usuwanie użytkowników, zmiany ustawień, odmowy dostępu, honeypot, CAPTCHA, Canarytokeny, eksport dziennika i weryfikacja integralności oraz same alerty.</p>
+<p>Przykładowy wpis:</p>
+<pre>{
+  "id": 12,
+  "created_at": "2026-11-23T18:14:40.123Z",
+  "actor_login": null,
+  "ip": "::ffff:127.0.0.1",
+  "action": "canary_alert",
+  "target": "honeypot_account",
+  "description": "Próba użycia konta-pułapki svc_backup",
+  "success": true,
+  "hash": "a1b2… (SHA3-256)"
+}</pre>
+
+<h3>2.3. Przeglądarka, ochrona, integralność</h3>
+<p>Administrator przegląda dziennik z filtrem (login, typ, zakres dat UTC) i eksportuje JSON. Aplikacja nie udostępnia edycji ani usuwania wpisów; rejestrowania nie da się wyłączyć. Eksport i weryfikacja też trafiają do dziennika.</p>
+<p>Weryfikacja przelicza SHA3-256 każdego wpisu i sprawdza ciągłość <code>id</code>. Po ręcznej zmianie opisu w pliku JSON panel zgłasza ingerencję i numer wpisu.</p>
+
+<h3>2.4. Kluczowy fragment</h3>
+<pre>export function hashEvent(event) {
+  return createHash('sha3-256')
+    .update(eventPayload(event), 'utf8')
+    .digest('hex');
+}</pre>
+
+<div class="pagebreak"></div>
+<h2>3. Zrzuty ekranu</h2>
+<figure>
+  <img src="img/01-dziennik.png" alt="Przeglądarka logów">
+  <figcaption>Rys. 1. Przeglądarka dziennika — filtry, weryfikacja SHA3-256, lista zdarzeń.</figcaption>
+</figure>
+<figure>
+  <img src="img/02-filtr.png" alt="Filtr zdarzeń">
+  <figcaption>Rys. 2. Filtrowanie po typie zdarzenia (nieudane logowania).</figcaption>
+</figure>
+<figure>
+  <img src="img/03-integralnosc-ok.png" alt="Integralność OK">
+  <figcaption>Rys. 3. Weryfikacja integralności — dziennik nienaruszony.</figcaption>
+</figure>
+<figure>
+  <img src="img/04-integralnosc-bad.png" alt="Wykryta ingerencja">
+  <figcaption>Rys. 4. Po ręcznej modyfikacji wpisu w pliku JSON — wykryto ingerencję.</figcaption>
+</figure>
+<figure>
+  <img src="img/05-alerty.png" alt="Alerty e-mail">
+  <figcaption>Rys. 5. Wygenerowane alerty e-mail (konto-pułapka oraz seria nieudanych logowań).</figcaption>
+</figure>
+<figure>
+  <img src="img/06-plik-json.png" alt="Fragment pliku JSON">
+  <figcaption>Rys. 6. Fragment pliku / eksportu dziennika z polem hash (SHA3-256).</figcaption>
+</figure>
+
+<div class="pagebreak"></div>
+<h2>4. Odpowiedzi na pytania kontrolne</h2>
+
+<h3>4.1. Dlaczego nie budować SIEM-u od zera?</h3>
+<p>Zbieranie, normalizacja, retencja, wyszukiwanie i korelacje to duży, dojrzały problem. Gotowe biblioteki logujące i systemy SIEM (Wazuh, Elastic, Splunk) mają parsery, skalowanie, role, alerty i audyt dostępu do samych logów. Własny system szybko staje się dziurawy: brak rotacji, utrata zdarzeń przy awarii, słabe zapytania, brak korelacji między hostami. Na zajęciach wystarczy solidny dziennik aplikacji; w produkcji podłącza się go do SIEM zamiast pisać SIEM od nowa.</p>
+
+<h3>4.2. Dlaczego nie logować haseł, nawet błędnych?</h3>
+<p>Błędne hasło często różni się od właściwego o literówkę. Zapis w logu oznacza wyciek niemal-hasła do pliku czy backupu, dostępnego dla adminów, backupów i ewentualnego napastnika z dostępem do logów. To też naruszenie zasady minimalizacji danych. W KLUCZU zapisujemy fakt nieudanego logowania i login-cel, nigdy treść hasła.</p>
+
+<h3>4.3. Na czym polega log injection?</h3>
+<p>Gdy aplikacja wstawia do logu surowy tekst od użytkownika (np. login lub parametr URL) bez oczyszczenia, napastnik może wstrzyknąć znaki nowej linii i sformatować „kolejny” wpis, który wygląda jak autentyczny. Fałszuje to audyt. Ochrona: sanityzacja (usuwanie CR/LF), strukturalny format (JSON z polami), ewentualnie długość i dozwolony alfabet.</p>
+
+<h3>4.4. Jak nasz mechanizm wykrywa zmianę i jak go obejść?</h3>
+<p>Każdy wpis ma <code>hash = SHA3-256(id|czas|aktor|IP|akcja|cel|opis|sukces)</code>. Weryfikacja liczy skrót od nowa; niezgodność oznacza zmianę treści. Brak kolejnego <code>id</code> sugeruje usunięcie. Obejście: atakujący z prawem zapisu do pliku mógłby zmienić treść <em>i</em> przeliczyć hash, albo podmienić cały plik na spójną wersję bez niewygodnych wpisów. Dlatego integralność aplikacji trzeba uzupełnić ochroną pliku (uprawnienia OS, tylko-do-dopisywania, zewnętrzny SIEM/WORM, podpis poza serwerem aplikacji).</p>
+
+<h2>5. Wnioski (moduły 1–3)</h2>
+<p>Moduł 1 zbudował tożsamość: Argon2id, RBAC, sesje. Moduł 2 utrudnił automatyzację: limity, reCAPTCHA, honeypot, Canarytokeny. Moduł 3 domyka pętlę: zdarzenia są trwale zapisane, da się je filtrować i eksportować, a SHA3-256 oraz alerty e-mail pokazują, kiedy ktoś rusza dziennik albo pułapkę. Całość to lokalny portal zajęciowy — do produkcji brakuje TLS, prawdziwego SMTP/SIEM i twardych uprawnień do pliku logów — ale ścieżka od logowania do alertu jest kompletna.</p>
+
+<h2>6. Repozytorium</h2>
+<p><a href="https://github.com/meteo1939/CYB_lab">https://github.com/meteo1939/CYB_lab</a> — foldery <code>lab1/</code>, <code>lab2/</code>, <code>lab3/</code>.</p>
+
+</body>
+</html>

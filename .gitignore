@@ -2,5 +2,6 @@ modul1/
 **/node_modules/
 **/data/
 **/*.log
-**/sprawozdanie/
+lab1/sprawozdanie/
+lab2/sprawozdanie/
 .DS_Store
